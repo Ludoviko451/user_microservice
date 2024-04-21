@@ -17,12 +17,13 @@ import org.springframework.context.annotation.Configuration;
 public class AuthBeanConfiguration {
 
     private final IUserServicePort userServicePort;
+    private final IUserPersistencePort userPersistencePort;
     private final SecurityConfig securityConfig;
     private final JwtTokenProvider jwtTokenProvider;
 
     @Bean
     public IAuthServicePort authServicePort(){
 
-        return new AuthUseCase(userServicePort, securityConfig.passwordEncoder(), jwtTokenProvider);
+        return new AuthUseCase(userServicePort, jwtTokenProvider, userPersistencePort);
     }
 }

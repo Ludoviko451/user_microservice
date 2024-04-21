@@ -39,19 +39,19 @@ public class AuthRestController {
     @PostMapping("/registerAdmin")
     public ResponseEntity<String> registerAdmin(@RequestBody @Valid UserRequest userRequest) {
 
-        return ResponseEntity.ok(authServicePort.registerAdmin(userRequestMapper.addRequestToUser(userRequest)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(authServicePort.registerAdmin(userRequestMapper.addRequestToUser(userRequest)));
     }
 
     @PostMapping("/registerTeacher")
     public ResponseEntity<String> registerTeacher(@RequestBody @Valid UserRequest userRequest) {
 
-        return ResponseEntity.ok(authServicePort.registerTeacher(userRequestMapper.addRequestToUser(userRequest)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(authServicePort.registerTeacher(userRequestMapper.addRequestToUser(userRequest)));
     }
 
     @PostMapping("/registerStudent")
     public ResponseEntity<String> registerStudent(@RequestBody @Valid UserRequest userRequest) {
 
-        return ResponseEntity.ok(authServicePort.registerStudent(userRequestMapper.addRequestToUser(userRequest)));
+        return ResponseEntity.status(HttpStatus.CREATED).body(authServicePort.registerStudent(userRequestMapper.addRequestToUser(userRequest)));
     }
 
 

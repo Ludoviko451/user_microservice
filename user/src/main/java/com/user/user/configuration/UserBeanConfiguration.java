@@ -22,10 +22,11 @@ public class UserBeanConfiguration {
     private final IUserRepository userRepository;
     private final IRoleRepository roleRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordEncoder passwordEncoder;
 
     @Bean
     public IUserPersistencePort userPersistencePort() {
-        return new UserAdapter(userRepository, userEntityMapper, roleRepository, jwtTokenProvider);
+        return new UserAdapter(userRepository, userEntityMapper, roleRepository, passwordEncoder, jwtTokenProvider);
     }
 
     @Bean

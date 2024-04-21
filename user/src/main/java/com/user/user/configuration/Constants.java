@@ -20,4 +20,6 @@ public class Constants {
 
     public static final String ACCESS_DENIED = "No tiene los permisos necesarios para realizar esta operación";
 
+    public static final String PHONE_NUMBER_REGEX = "^(300|3(?:0[1-3]|[1-2]\\d|3[0-3]))\\d{7}$";
+
 }

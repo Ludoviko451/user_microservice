@@ -1,32 +1,24 @@
 package com.user.user.domain.api.usecases;
 
-
-import com.user.user.adapters.driven.jpa.mysql.exception.PasswordMismatchException;
-import com.user.user.adapters.driven.jpa.mysql.exception.UserNotExistException;
 import com.user.user.adapters.driving.http.dto.request.LoginDTO;
 import com.user.user.configuration.Constants;
 import com.user.user.domain.api.IAuthServicePort;
 import com.user.user.domain.api.IUserServicePort;
 import com.user.user.domain.model.User;
+import com.user.user.domain.spi.IUserPersistencePort;
 import com.user.user.security.jwt.JwtTokenProvider;
-import org.apache.tomcat.util.bcel.Const;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 public class AuthUseCase implements IAuthServicePort {
     private final IUserServicePort userServicePort;
-    private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final IUserPersistencePort userPersistencePort;
 
+    //NO USAR DEPENDENCIAS DE SPRING AQUI
 
-    public AuthUseCase(IUserServicePort userServicePort, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
+    public AuthUseCase(IUserServicePort userServicePort, JwtTokenProvider jwtTokenProvider, IUserPersistencePort userPersistencePort) {
         this.userServicePort = userServicePort;
-        this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.userPersistencePort = userPersistencePort;
     }
 
     @Override
@@ -41,16 +33,8 @@ public class AuthUseCase implements IAuthServicePort {
     @Override
     public String login(LoginDTO loginDTO) {
 
-        String email = loginDTO.getEmail();
-        String password = loginDTO.getPassword();
-        User user = userServicePort.findByEmail(email);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(email, password);
-        if(!passwordEncoder.matches(password, user.getPassword())){
 
-            throw new PasswordMismatchException();
-        }
-
-        return jwtTokenProvider.generateToken(authentication);
+        return jwtTokenProvider.generateToken(userPersistencePort.login(loginDTO.getEmail(), loginDTO.getPassword()));
     }
 
     @Override
@@ -65,7 +49,8 @@ public class AuthUseCase implements IAuthServicePort {
 
     private String saveUser(User user, Long roleid){
         String password = user.getPassword();
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        //Usar metodo para encriptar contraseña
+        user.setPassword(userPersistencePort.encryptPassword(password));
         userServicePort.saveUser(user, roleid);
 
         return Constants.USER_SAVED_MESSAGE;
