@@ -1,6 +1,5 @@
 package com.user.user.adapters.driven.jpa.mysql.entity;
 
-import com.user.user.domain.model.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

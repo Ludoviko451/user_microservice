@@ -1,13 +1,11 @@
 package com.user.user.configuration;
 
-import com.user.user.adapters.driven.jpa.mysql.mapper.IRoleEntityMapper;
-import com.user.user.adapters.driven.jpa.mysql.mapper.IUserEntityMapper;
-import com.user.user.adapters.driven.jpa.mysql.repository.IRoleRepository;
+import com.user.user.configuration.security.SecurityConfig;
 import com.user.user.domain.api.IAuthServicePort;
 import com.user.user.domain.api.IUserServicePort;
 import com.user.user.domain.api.usecases.AuthUseCase;
 import com.user.user.domain.spi.IUserPersistencePort;
-import com.user.user.security.jwt.JwtTokenProvider;
+import com.user.user.configuration.security.jwt.JwtTokenProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

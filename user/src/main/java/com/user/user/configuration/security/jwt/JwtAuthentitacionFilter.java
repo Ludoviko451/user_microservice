@@ -1,4 +1,4 @@
-package com.user.user.security.jwt;
+package com.user.user.configuration.security.jwt;
 
 import com.user.user.adapters.driven.jpa.mysql.adapter.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
@@ -20,11 +20,17 @@ import java.util.List;
 // Este filtro se encarga de validar la información del token JWT en cada solicitud entrante
 public class JwtAuthentitacionFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private UserDetailsServiceImpl userDetailsService;
+
+    private final UserDetailsServiceImpl userDetailsService;
+
+
+    private final JwtTokenProvider tokenProvider;
 
     @Autowired
-    private JwtTokenProvider tokenProvider;
+    public JwtAuthentitacionFilter(UserDetailsServiceImpl userDetailsService, JwtTokenProvider tokenProvider) {
+        this.userDetailsService = userDetailsService;
+        this.tokenProvider = tokenProvider;
+    }
 
     // Método para extraer el token del encabezado de autorización de la solicitud
     private String obtainToken(HttpServletRequest request) {
@@ -44,7 +50,7 @@ public class JwtAuthentitacionFilter extends OncePerRequestFilter {
         String token = obtainToken(request);
 
         // Validar el token
-        if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
+        if (StringUtils.hasText(token) && Boolean.TRUE.equals(tokenProvider.validateToken(token))) {
             // Si el token es válido, extraer el nombre de usuario del token y cargar los detalles del usuario
             String username = tokenProvider.findUsername(token);
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);

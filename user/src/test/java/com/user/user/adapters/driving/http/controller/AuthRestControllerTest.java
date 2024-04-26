@@ -28,7 +28,7 @@ class AuthRestControllerTest {
 
 
     @Test
-    public void testLogin() {
+    void testLogin() {
         LoginDTO loginDTO = new LoginDTO("test@gmail.com", "a34a43");
         when(authServicePort.login(loginDTO)).thenReturn("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c");
 
@@ -38,7 +38,7 @@ class AuthRestControllerTest {
     }
 
     @Test
-    public void testRegisterAdmin() {
+    void testRegisterAdmin() {
         UserRequest userRequest = createUser();
 
         User user = userRequestMapper.addRequestToUser(userRequest);
@@ -51,7 +51,7 @@ class AuthRestControllerTest {
     }
 
     @Test
-    public void testRegisterTeacher() {
+    void testRegisterTeacher() {
         UserRequest userRequest = createUser();
 
         User user = userRequestMapper.addRequestToUser(userRequest);
@@ -65,7 +65,7 @@ class AuthRestControllerTest {
     }
 
     @Test
-    public void testRegisterStudent() {
+     void testRegisterStudent() {
 
         UserRequest userRequest = createUser();
 

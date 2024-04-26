@@ -7,12 +7,9 @@ import com.user.user.adapters.driven.jpa.mysql.exception.UserNotExistException;
 import com.user.user.adapters.driven.jpa.mysql.mapper.IUserEntityMapper;
 import com.user.user.adapters.driven.jpa.mysql.repository.IRoleRepository;
 import com.user.user.adapters.driven.jpa.mysql.repository.IUserRepository;
-import com.user.user.domain.model.Role;
 import com.user.user.domain.model.User;
 import com.user.user.domain.spi.IUserPersistencePort;
-import com.user.user.security.jwt.JwtTokenProvider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -27,31 +24,21 @@ public class UserAdapter implements IUserPersistencePort {
     private final IRoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-    private final JwtTokenProvider jwtTokenProvider;
-    public UserAdapter(IUserRepository userRepository, IUserEntityMapper userEntityMapper, IRoleRepository roleRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
+
+
+    public UserAdapter(IUserRepository userRepository, IUserEntityMapper userEntityMapper, IRoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userEntityMapper = userEntityMapper;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
-        this.jwtTokenProvider = jwtTokenProvider;
     }
 
 
     //METODO PARA CREAR UN NUEVO TUTOR
     @Override
     public void saveUser(User user, Long idRole) {
-
-        List<UserEntity> userEntities = userRepository.findAll();
         UserEntity userEntity = userEntityMapper.toEntity(user);
 
-        for (UserEntity existingUser : userEntities) {
-            if (existingUser.getEmail().equals(user.getEmail())) {
-                throw new RuntimeException("User already exists");
-            }
-        }
-         if(userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new RuntimeException("User already exists");
-        }
         UserEntity savedEntity = addRolesToUser(userEntity, idRole);
 
          userRepository.save(savedEntity);
@@ -67,8 +54,6 @@ public class UserAdapter implements IUserPersistencePort {
 
 
 
-
-
     @Override
     public List<User> getAllUsers() {
         return userEntityMapper.toModel(userRepository.findAll());
@@ -76,6 +61,8 @@ public class UserAdapter implements IUserPersistencePort {
 
     @Override
     public Optional<User> findByEmail(String email) {
+
+
         return userRepository.findByEmail(email).map(userEntityMapper::toModel);
     }
 
@@ -98,4 +85,6 @@ public class UserAdapter implements IUserPersistencePort {
     public String encryptPassword(String password) {
         return passwordEncoder.encode(password);
     }
+
+
 }

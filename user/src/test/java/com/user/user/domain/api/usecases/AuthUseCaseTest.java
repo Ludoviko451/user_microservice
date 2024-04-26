@@ -4,7 +4,7 @@ import com.user.user.adapters.driving.http.dto.request.LoginDTO;
 import com.user.user.domain.api.IUserServicePort;
 import com.user.user.domain.model.User;
 import com.user.user.domain.spi.IUserPersistencePort;
-import com.user.user.security.jwt.JwtTokenProvider;
+import com.user.user.configuration.security.jwt.JwtTokenProvider;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -29,7 +29,7 @@ class AuthUseCaseTest {
     }
 
     @Test
-    public void testRegisterAdmin() {
+    void testRegisterAdmin() {
         User user = createUser();
         when(userPersistencePort.encryptPassword(anyString())).thenReturn("encryptedPassword");
         doNothing().when(userServicePort).saveUser(user, 1L);
@@ -40,7 +40,7 @@ class AuthUseCaseTest {
     }
 
     @Test
-    public void testLogin() {
+    void testLogin() {
         LoginDTO loginDTO = new LoginDTO("test@gmail.com", "password");
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword());
@@ -64,7 +64,7 @@ class AuthUseCaseTest {
     }
 
     @Test
-    public void testRegisterStudent() {
+    void testRegisterStudent() {
         User user = createUser();
         when(userPersistencePort.encryptPassword(anyString())).thenReturn("encryptedPassword");
         doNothing().when(userServicePort).saveUser(user, 3L);

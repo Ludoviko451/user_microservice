@@ -11,4 +11,6 @@ public interface IAuthPersistencePort {
     String registerTeacher(User user);
 
     String registerStudent(User user);
+
+
 }

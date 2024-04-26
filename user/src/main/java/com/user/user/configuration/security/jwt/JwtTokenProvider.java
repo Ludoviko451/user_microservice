@@ -1,4 +1,4 @@
-package com.user.user.security.jwt;
+package com.user.user.configuration.security.jwt;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

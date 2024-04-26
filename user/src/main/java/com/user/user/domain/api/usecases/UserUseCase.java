@@ -1,6 +1,7 @@
 package com.user.user.domain.api.usecases;
 
 import com.user.user.adapters.driven.jpa.mysql.exception.PhoneNumberNotValidException;
+import com.user.user.adapters.driven.jpa.mysql.exception.UserAlreadyExists;
 import com.user.user.adapters.driven.jpa.mysql.exception.UserNotExistException;
 import com.user.user.configuration.Constants;
 import com.user.user.domain.api.IUserServicePort;
@@ -30,18 +31,17 @@ public class UserUseCase implements IUserServicePort {
     public List<User> getAllUsers() {
         return userPersistencePort.getAllUsers();
     }
-
     @Override
-    public User findByEmail(String email) {
+    public User findUserByEmail(String email) {
         return userPersistencePort.findByEmail(email).orElseThrow(() -> new UserNotExistException(email));
     }
 
     private void validateData(User user){
         if (userPersistencePort.findByEmail(user.getEmail()).isPresent()) {
-            throw new UserNotExistException(user.getDni());
+            throw new UserAlreadyExists(user.getEmail());
         }
         if (userPersistencePort.findByDni(user.getDni()).isPresent()) {
-            throw new UserNotExistException(user.getDni());
+            throw new UserAlreadyExists(user.getDni());
         }
         // Expresión regular para validar el número de teléfono
         Pattern pattern = Pattern.compile(Constants.PHONE_NUMBER_REGEX);

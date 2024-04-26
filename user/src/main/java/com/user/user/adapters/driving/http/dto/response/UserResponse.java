@@ -1,10 +1,10 @@
 package com.user.user.adapters.driving.http.dto.response;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import com.user.user.domain.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+
+import java.util.List;
 
 @Getter
 @AllArgsConstructor
@@ -23,4 +23,6 @@ public class UserResponse {
     private final String phoneNumber;
 
     private final String email;
+
+    private final List<Role> role;
 }

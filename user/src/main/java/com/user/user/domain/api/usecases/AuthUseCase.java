@@ -6,7 +6,7 @@ import com.user.user.domain.api.IAuthServicePort;
 import com.user.user.domain.api.IUserServicePort;
 import com.user.user.domain.model.User;
 import com.user.user.domain.spi.IUserPersistencePort;
-import com.user.user.security.jwt.JwtTokenProvider;
+import com.user.user.configuration.security.jwt.JwtTokenProvider;
 
 public class AuthUseCase implements IAuthServicePort {
     private final IUserServicePort userServicePort;
@@ -46,6 +46,7 @@ public class AuthUseCase implements IAuthServicePort {
     public String registerStudent(User user) {
         return saveUser(user, Constants.ROLE_STUDENT );
     }
+
 
     private String saveUser(User user, Long roleid){
         String password = user.getPassword();

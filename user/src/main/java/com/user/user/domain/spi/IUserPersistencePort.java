@@ -18,4 +18,5 @@ public interface IUserPersistencePort {
     Authentication login(String email, String password);
 
     String encryptPassword(String password);
+
 }

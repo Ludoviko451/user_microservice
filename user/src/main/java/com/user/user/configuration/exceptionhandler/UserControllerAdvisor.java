@@ -1,14 +1,11 @@
-package com.user.user.configuration.exceptionHandler;
+package com.user.user.configuration.exceptionhandler;
 
-import com.user.user.adapters.driven.jpa.mysql.exception.PasswordMismatchException;
-import com.user.user.adapters.driven.jpa.mysql.exception.PhoneNumberNotValidException;
-import com.user.user.adapters.driven.jpa.mysql.exception.UserNotExistException;
+import com.user.user.adapters.driven.jpa.mysql.exception.*;
 import com.user.user.configuration.Constants;
 import com.user.user.configuration.ExceptionResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -36,10 +33,19 @@ public class UserControllerAdvisor {
         return ResponseEntity.badRequest().body(response);
     }
 
-//    @ExceptionHandler(AccessDeniedException.class)
-//    public ResponseEntity<ExceptionResponse> handleAccessDeniedException(AccessDeniedException e) {
-//        ExceptionResponse response = new ExceptionResponse(String.format(Constants.ACCESS_DENIED, e.getMessage()), HttpStatus.UNAUTHORIZED.toString(), LocalDateTime.now());
-//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-//    }
+
+
+    @ExceptionHandler(UserDontHaveRolesException.class)
+    public ResponseEntity<ExceptionResponse> handleUserDontHaveRolesException(UserDontHaveRolesException e) {
+        ExceptionResponse response = new ExceptionResponse(String.format(Constants.USER_DONT_HAVE_ROLES, e.getMessage()), HttpStatus.BAD_REQUEST.toString(), LocalDateTime.now());
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(UserAlreadyExists.class)
+    public ResponseEntity<ExceptionResponse> handleUserAlreadyExists(UserAlreadyExists e) {
+        ExceptionResponse response = new ExceptionResponse(String.format(Constants.USER_ALREADY_EXISTS, e.getMessage()), HttpStatus.BAD_REQUEST.toString(), LocalDateTime.now());
+        return ResponseEntity.badRequest().body(response);
+    }
+
 
 }

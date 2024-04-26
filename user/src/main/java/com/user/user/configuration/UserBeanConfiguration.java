@@ -7,11 +7,9 @@ import com.user.user.adapters.driven.jpa.mysql.repository.IUserRepository;
 import com.user.user.domain.api.IUserServicePort;
 import com.user.user.domain.api.usecases.UserUseCase;
 import com.user.user.domain.spi.IUserPersistencePort;
-import com.user.user.security.jwt.JwtTokenProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
@@ -21,12 +19,11 @@ public class UserBeanConfiguration {
     private final IUserEntityMapper userEntityMapper;
     private final IUserRepository userRepository;
     private final IRoleRepository roleRepository;
-    private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
 
     @Bean
     public IUserPersistencePort userPersistencePort() {
-        return new UserAdapter(userRepository, userEntityMapper, roleRepository, passwordEncoder, jwtTokenProvider);
+        return new UserAdapter(userRepository, userEntityMapper, roleRepository, passwordEncoder);
     }
 
     @Bean

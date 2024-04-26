@@ -1,4 +1,4 @@
-package com.user.user.security.jwt;
+package com.user.user.configuration.security.jwt;
 
 
 import jakarta.servlet.ServletException;

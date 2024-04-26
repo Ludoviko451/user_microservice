@@ -11,7 +11,6 @@ public class Constants {
     public static final Long ROLE_ADMIN = 1L;
     public static final Long ROLE_TEACHER = 2L;
     public static final Long ROLE_STUDENT = 3L;
-
     public static final String USER_SAVED_MESSAGE = "Usuario Creado Satisfactoriamente";
 
     public static final String PASSWORD_MISMATCH_EXCEPTION = "La clave no coincide";
@@ -21,5 +20,9 @@ public class Constants {
     public static final String ACCESS_DENIED = "No tiene los permisos necesarios para realizar esta operación";
 
     public static final String PHONE_NUMBER_REGEX = "^(300|3(?:0[1-3]|[1-2]\\d|3[0-3]))\\d{7}$";
+
+    public static final String USER_DONT_HAVE_ROLES = "El usuario no tiene roles";
+
+    public static final String USER_ALREADY_EXISTS = "El usuario %s ya existe";
 
 }

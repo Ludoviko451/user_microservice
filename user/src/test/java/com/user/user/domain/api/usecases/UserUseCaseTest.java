@@ -4,10 +4,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 import com.user.user.adapters.driven.jpa.mysql.exception.PhoneNumberNotValidException;
+import com.user.user.adapters.driven.jpa.mysql.exception.UserAlreadyExists;
 import com.user.user.adapters.driven.jpa.mysql.exception.UserNotExistException;
 import com.user.user.domain.model.User;
 import com.user.user.domain.spi.IUserPersistencePort;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -18,7 +20,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-public class UserUseCaseTest {
+class UserUseCaseTest {
 
     @Mock
     private IUserPersistencePort userPersistencePort;
@@ -32,7 +34,7 @@ public class UserUseCaseTest {
     }
 
     @Test
-    public void testSaveUser_Success() {
+    void testSaveUser_Success() {
         User user = createUser();
         Long roleId = 1L;
 
@@ -43,45 +45,54 @@ public class UserUseCaseTest {
     }
 
     @Test
-    public void testSaveUser_UserAlreadyExistsByEmail() {
+    void testSaveUser_UserAlreadyExistsByEmail() {
         User existingUser = createUser();
         Long roleId = 1L;
 
         when(userPersistencePort.findByEmail(existingUser.getEmail())).thenReturn(Optional.of(existingUser));
 
-        assertThrows(UserNotExistException.class, () -> userUseCase.saveUser(existingUser, roleId));
+        assertThrows(UserAlreadyExists.class, () -> userUseCase.saveUser(existingUser, roleId));
     }
 
     @Test
-    public void testSaveUser_UserAlreadyExistsByDni() {
+    void testSaveUser_UserAlreadyExistsByDni() {
         User existingUser = createUser();
         Long roleId = 1L;
 
         when(userPersistencePort.findByEmail(existingUser.getEmail())).thenReturn(Optional.empty());
         when(userPersistencePort.findByDni(existingUser.getDni())).thenReturn(Optional.of(existingUser));
 
-        assertThrows(UserNotExistException.class, () -> userUseCase.saveUser(existingUser, roleId));
+        assertThrows(UserAlreadyExists.class, () -> userUseCase.saveUser(existingUser, roleId));
     }
-    public void testFindByEmail_ValidEmailExists() {
+
+    @Test
+    void testFindByEmail_ValidEmailExists() {
         User user = createUser();
 
         when(userPersistencePort.findByEmail("test@example.com")).thenReturn(Optional.of(user));
 
-        User foundUser = userUseCase.findByEmail("test@example.com");
+        User foundUser = userUseCase.findUserByEmail("test@example.com");
 
         assertEquals(user, foundUser);
     }
 
     @Test
-    public void testFindByEmail_InvalidEmailDoesNotExist() {
+    void testFindByEmail_InvalidEmailDoesNotExist() {
+        // Arrange
         User user = createUser();
+        String userEmail = user.getEmail();
+        when(userPersistencePort.findByEmail(userEmail)).thenReturn(Optional.empty());
 
-        when(userPersistencePort.findByEmail(user.getEmail())).thenReturn(Optional.empty());
+        // Act
+        Executable action = () -> userUseCase.findUserByEmail(userEmail);
 
-        assertThrows(UserNotExistException.class, () -> userUseCase.findByEmail(user.getEmail()));
+        // Assert
+        assertThrows(UserNotExistException.class, action);
     }
+
+
     @Test
-    public void testSaveUser_InvalidPhoneNumber() {
+    void testSaveUser_InvalidPhoneNumber() {
         User user = new User(1L, "Usuario", "Prueba", "1127049576", "12", "test@example.com", "a2321242", Collections.emptyList());
         Long roleId = 1L;
 

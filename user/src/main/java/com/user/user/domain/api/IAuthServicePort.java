@@ -12,4 +12,7 @@ public interface IAuthServicePort {
     String registerTeacher(User user);
 
     String registerStudent(User user);
+
+
+
 }

@@ -1,9 +1,11 @@
-package com.user.user.configuration;
+package com.user.user.configuration.security;
 
 
-import com.user.user.security.jwt.JwtAuthenticationEntryPoint;
-import com.user.user.security.jwt.JwtAuthentitacionFilter;
-import jakarta.servlet.http.HttpServletResponse;
+import com.user.user.adapters.driven.jpa.mysql.adapter.UserDetailsServiceImpl;
+import com.user.user.configuration.security.jwt.JwtAuthenticationEntryPoint;
+import com.user.user.configuration.security.jwt.JwtAuthentitacionFilter;
+import com.user.user.configuration.security.jwt.JwtTokenProvider;
+import com.user.user.configuration.security.jwt.SecurityContants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +14,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,10 +26,21 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
 
-    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-    public SecurityConfig(JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
+
+    private final UserDetailsServiceImpl userDetailsService;
+
+
+    private final JwtTokenProvider tokenProvider;
+
+
+
+
+    public SecurityConfig(JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint, UserDetailsServiceImpl userDetailsService, JwtTokenProvider tokenProvider) {
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+        this.userDetailsService = userDetailsService;
+        this.tokenProvider = tokenProvider;
     }
 
     //Este bean se va a encargar de verificar la informacion de los usuarios que se logean
@@ -47,8 +61,8 @@ public class SecurityConfig {
     //Con este bean incorporara el filtro de seguridad de jwt
 
     @Bean
-    JwtAuthentitacionFilter jwtAuthentitacionFilter() {
-        return new JwtAuthentitacionFilter();
+    public JwtAuthentitacionFilter jwtAuthentitacionFilter() {
+        return new JwtAuthentitacionFilter(userDetailsService, tokenProvider);
 
     }
 
@@ -59,8 +73,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         return http
-                .csrf(csrf ->
-                        csrf.disable()
+                .csrf(AbstractHttpConfigurer::disable
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling .authenticationEntryPoint(jwtAuthenticationEntryPoint))      //Nos establece un punto de entrada personalizado de autenticacion para  manejo de autentitaciones no autorizadas
 
@@ -69,9 +82,10 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(authRequest -> authRequest
                         .requestMatchers("auth/login").permitAll()
-                        .requestMatchers("auth/registerAdmin").hasAuthority("ADMIN")
-                        .requestMatchers("auth/registerTeacher").hasAuthority("ADMIN")
-                        .requestMatchers("auth/registerStudent").hasAnyAuthority("ADMIN", "TEACHER")
+                        .requestMatchers("auth/registerAdmin").hasAuthority(SecurityContants.ADMIN)
+                        .requestMatchers("auth/registerTeacher").hasAuthority(SecurityContants.ADMIN)
+                        .requestMatchers("auth/registerStudent").hasAnyAuthority(SecurityContants.ADMIN, SecurityContants.TEACHER)
+                        .requestMatchers("user/userByEmail").hasAuthority(SecurityContants.ADMIN)
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",

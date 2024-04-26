@@ -3,9 +3,11 @@ package com.user.user.adapters.driven.jpa.mysql.repository;
 import com.user.user.adapters.driven.jpa.mysql.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+@Repository
 public interface IUserRepository extends JpaRepository<UserEntity, Long> {
 
     @Query(value = "SELECT * from user WHERE email = :email", nativeQuery = true)
