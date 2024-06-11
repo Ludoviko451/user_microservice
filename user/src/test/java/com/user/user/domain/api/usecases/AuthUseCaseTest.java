@@ -1,15 +1,23 @@
 package com.user.user.domain.api.usecases;
 
+import com.user.user.adapters.driven.jpa.mysql.exception.PasswordMismatchException;
 import com.user.user.adapters.driving.http.dto.request.LoginDTO;
-import com.user.user.domain.api.IUserServicePort;
+import com.user.user.configuration.Constants;
+import com.user.user.domain.model.Role;
 import com.user.user.domain.model.User;
 import com.user.user.domain.spi.IUserPersistencePort;
 import com.user.user.configuration.security.jwt.JwtTokenProvider;
+import com.user.user.domain.api.IUserServicePort;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -17,61 +25,48 @@ import static org.mockito.Mockito.*;
 
 class AuthUseCaseTest {
 
+    @InjectMocks
+    private AuthUseCase authUseCase;
 
-    private IUserServicePort userServicePort = mock(IUserServicePort.class);
-    private JwtTokenProvider jwtTokenProvider = mock(JwtTokenProvider.class);
-    private IUserPersistencePort userPersistencePort = mock(IUserPersistencePort.class);
-    private AuthUseCase authUseCase = new AuthUseCase(userServicePort, jwtTokenProvider, userPersistencePort);
+    @Mock
+    private IUserServicePort userServicePort;
 
-    private User createUser() {
+    @Mock
+    private JwtTokenProvider jwtTokenProvider;
 
-        return new User(1L, "Usuario", "Prueba", "1127049576", "3102156154", "test@example.com", "a2321242", Collections.emptyList());
+    @Mock
+    private IUserPersistencePort userPersistencePort;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void testRegisterAdmin() {
-        User user = createUser();
-        when(userPersistencePort.encryptPassword(anyString())).thenReturn("encryptedPassword");
-        doNothing().when(userServicePort).saveUser(user, 1L);
+    void testLogin_Success() {
+        LoginDTO loginDTO = new LoginDTO("john.doe@example.com", "password");
+        Role role = new Role(1L, "ROLE_USER");
+        User user = new User(1L, "John", "Doe", "12345678", "123-456-7890", "john.doe@example.com", "encodedPassword", Collections.singletonList(role));
 
-        String result = authUseCase.registerAdmin(user);
-
-        assertEquals("Usuario Creado Satisfactoriamente", result);
-    }
-
-    @Test
-    void testLogin() {
-        LoginDTO loginDTO = new LoginDTO("test@gmail.com", "password");
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword());
-        when(userPersistencePort.login("test@gmail.com", "password")).thenReturn(authentication);
-        when(jwtTokenProvider.generateToken(any(Authentication.class))).thenReturn("token123");
+        when(userServicePort.findUserByEmail(anyString())).thenReturn(user);
+        when(userPersistencePort.matchesPassword(anyString(), anyString())).thenReturn(true);
+        when(jwtTokenProvider.generateToken(any())).thenReturn("generatedToken");
 
         String token = authUseCase.login(loginDTO);
 
-        assertEquals("token123", token);
+        assertNotNull(token);
+        assertEquals("generatedToken", token);
     }
 
     @Test
-    public void testRegisterTeacher() {
-        User user = createUser();
-        when(userPersistencePort.encryptPassword(anyString())).thenReturn("encryptedPassword");
-        doNothing().when(userServicePort).saveUser(user, 2L);
+    void testLogin_PasswordMismatch() {
+        LoginDTO loginDTO = new LoginDTO("john.doe@example.com", "password");
+        Role role = new Role(1L, "ROLE_USER");
+        User user = new User(1L, "John", "Doe", "12345678", "123-456-7890", "john.doe@example.com", "encodedPassword", Collections.singletonList(role));
 
-        String result = authUseCase.registerTeacher(user);
+        when(userServicePort.findUserByEmail(anyString())).thenReturn(user);
+        when(userPersistencePort.matchesPassword(anyString(), anyString())).thenReturn(false);
 
-        assertEquals("Usuario Creado Satisfactoriamente", result);
-    }
-
-    @Test
-    void testRegisterStudent() {
-        User user = createUser();
-        when(userPersistencePort.encryptPassword(anyString())).thenReturn("encryptedPassword");
-        doNothing().when(userServicePort).saveUser(user, 3L);
-
-        String result = authUseCase.registerStudent(user);
-
-        assertEquals("Usuario Creado Satisfactoriamente", result);
-
+        assertThrows(PasswordMismatchException.class, () -> authUseCase.login(loginDTO));
     }
 }

@@ -17,9 +17,8 @@ import static org.mockito.Mockito.when;
 
 class AuthRestControllerTest {
 
-    private IAuthServicePort authServicePort = mock(IAuthServicePort.class);
-    private IUserRequestMapper userRequestMapper = mock(IUserRequestMapper.class);
-    private AuthRestController authRestController = new AuthRestController(authServicePort, userRequestMapper);
+    private final IAuthServicePort authServicePort = mock(IAuthServicePort.class);
+    private final AuthRestController authRestController = new AuthRestController(authServicePort);
 
     private UserRequest createUser() {
 
@@ -37,45 +36,4 @@ class AuthRestControllerTest {
         assertEquals("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c", response.getBody());
     }
 
-    @Test
-    void testRegisterAdmin() {
-        UserRequest userRequest = createUser();
-
-        User user = userRequestMapper.addRequestToUser(userRequest);
-        when(authServicePort.registerAdmin(user)).thenReturn("Usuario Creado Satisfactoriamente");
-
-        ResponseEntity<String> response = authRestController.registerAdmin(userRequest);
-
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals("Usuario Creado Satisfactoriamente", response.getBody());
-    }
-
-    @Test
-    void testRegisterTeacher() {
-        UserRequest userRequest = createUser();
-
-        User user = userRequestMapper.addRequestToUser(userRequest);
-
-        when(authServicePort.registerTeacher(user)).thenReturn("Usuario Creado Satisfactoriamente");
-
-        ResponseEntity<String> response = authRestController.registerTeacher(userRequest);
-
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals("Usuario Creado Satisfactoriamente", response.getBody());
-    }
-
-    @Test
-     void testRegisterStudent() {
-
-        UserRequest userRequest = createUser();
-
-        User user = userRequestMapper.addRequestToUser(userRequest);
-
-        when(authServicePort.registerStudent(user)).thenReturn("Usuario Creado Satisfactoriamente");
-
-        ResponseEntity<String> response = authRestController.registerStudent(userRequest);
-
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals("Usuario Creado Satisfactoriamente", response.getBody());
-    }
 }

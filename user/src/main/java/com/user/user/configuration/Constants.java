@@ -21,8 +21,12 @@ public class Constants {
 
     public static final String PHONE_NUMBER_REGEX = "^(300|3(?:0[1-3]|[1-2]\\d|3[0-3]))\\d{7}$";
 
-    public static final String USER_DONT_HAVE_ROLES = "El usuario no tiene roles";
-
     public static final String USER_ALREADY_EXISTS = "El usuario %s ya existe";
+
+    public static final String ADMIN_CREATED = "Administrador Creado Satisfactoriamente";
+
+    public static final String TEACHER_CREATED = "Tutor Creado Satisfactoriamente";
+
+    public static final String STUDENT_CREATED = "Estudiante Creado Satisfactoriamente";
 
 }

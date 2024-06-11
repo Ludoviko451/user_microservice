@@ -2,19 +2,14 @@ package com.user.user.adapters.driven.jpa.mysql.adapter;
 
 import com.user.user.adapters.driven.jpa.mysql.entity.RoleEntity;
 import com.user.user.adapters.driven.jpa.mysql.entity.UserEntity;
-import com.user.user.adapters.driven.jpa.mysql.exception.PasswordMismatchException;
-import com.user.user.adapters.driven.jpa.mysql.exception.UserNotExistException;
 import com.user.user.adapters.driven.jpa.mysql.mapper.IUserEntityMapper;
 import com.user.user.adapters.driven.jpa.mysql.repository.IRoleRepository;
 import com.user.user.adapters.driven.jpa.mysql.repository.IUserRepository;
 import com.user.user.domain.model.User;
 import com.user.user.domain.spi.IUserPersistencePort;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 public class UserAdapter implements IUserPersistencePort {
@@ -34,7 +29,6 @@ public class UserAdapter implements IUserPersistencePort {
     }
 
 
-    //METODO PARA CREAR UN NUEVO TUTOR
     @Override
     public void saveUser(User user, Long idRole) {
         UserEntity userEntity = userEntityMapper.toEntity(user);
@@ -53,12 +47,6 @@ public class UserAdapter implements IUserPersistencePort {
     }
 
 
-
-    @Override
-    public List<User> getAllUsers() {
-        return userEntityMapper.toModel(userRepository.findAll());
-    }
-
     @Override
     public Optional<User> findByEmail(String email) {
 
@@ -72,18 +60,13 @@ public class UserAdapter implements IUserPersistencePort {
     }
 
     @Override
-    public Authentication login(String email, String password) {
-        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new UserNotExistException(email));
-        if(!passwordEncoder.matches(password, user.getPassword())){
-            throw new PasswordMismatchException();
-        }
-
-        return new UsernamePasswordAuthenticationToken(email, password);
+    public String encryptPassword(String password) {
+        return passwordEncoder.encode(password);
     }
 
     @Override
-    public String encryptPassword(String password) {
-        return passwordEncoder.encode(password);
+    public boolean matchesPassword(String password, String encodedPassword) {
+        return passwordEncoder.matches(password, encodedPassword);
     }
 
 

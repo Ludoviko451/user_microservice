@@ -6,7 +6,6 @@ import com.user.user.configuration.security.jwt.JwtAuthenticationEntryPoint;
 import com.user.user.configuration.security.jwt.JwtAuthentitacionFilter;
 import com.user.user.configuration.security.jwt.JwtTokenProvider;
 import com.user.user.configuration.security.jwt.SecurityContants;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,8 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-@Configuration // Le indica al contenedor de spring que esta es una clase de seguridad al momento de arrancar la app
-@EnableWebSecurity // Indicamos que se activa la seguridad web en nuestra aplicacion y ademas esta sera una clase la cual contendra toda la configuracion referente a la seguridad
+@Configuration
+@EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfig {
 
@@ -43,14 +42,13 @@ public class SecurityConfig {
         this.tokenProvider = tokenProvider;
     }
 
-    //Este bean se va a encargar de verificar la informacion de los usuarios que se logean
+
     @Bean
     AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    //Con este bean nos encargaremos de encriptar todas nuestras claves
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -58,7 +56,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    //Con este bean incorporara el filtro de seguridad de jwt
+
 
     @Bean
     public JwtAuthentitacionFilter jwtAuthentitacionFilter() {
@@ -66,8 +64,7 @@ public class SecurityConfig {
 
     }
 
-    //Bean que se encarga de establecer una cadena de filtros de seguridad en nuestra app,
-    //Aqui se determina los permisos sobre los roles en la app
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -75,23 +72,23 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable
                 )
-                .exceptionHandling(exceptionHandling -> exceptionHandling .authenticationEntryPoint(jwtAuthenticationEntryPoint))      //Nos establece un punto de entrada personalizado de autenticacion para  manejo de autentitaciones no autorizadas
+                .exceptionHandling(exceptionHandling -> exceptionHandling .authenticationEntryPoint(jwtAuthenticationEntryPoint))
 
-
-                .sessionManagement(sessionManager -> sessionManager.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) //Nos permite crear una sesion
+                .sessionManagement(sessionManager -> sessionManager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(authRequest -> authRequest
                         .requestMatchers("auth/login").permitAll()
                         .requestMatchers("auth/registerAdmin").hasAuthority(SecurityContants.ADMIN)
                         .requestMatchers("auth/registerTeacher").hasAuthority(SecurityContants.ADMIN)
-                        .requestMatchers("auth/registerStudent").hasAnyAuthority(SecurityContants.ADMIN, SecurityContants.TEACHER)
+                        .requestMatchers("auth/registerStudent").hasAuthority(SecurityContants.ADMIN)
                         .requestMatchers("user/userByEmail").hasAuthority(SecurityContants.ADMIN)
+                        .requestMatchers("user/roleByEmail").authenticated()
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-                        .anyRequest().authenticated() // Requiere autenticación para todas las demás solicitudes
+                        .anyRequest().permitAll()
                 )
 
                 .addFilterBefore(jwtAuthentitacionFilter(), UsernamePasswordAuthenticationFilter.class)

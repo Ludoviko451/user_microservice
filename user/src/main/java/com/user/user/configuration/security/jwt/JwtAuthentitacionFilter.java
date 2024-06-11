@@ -59,9 +59,12 @@ public class JwtAuthentitacionFilter extends OncePerRequestFilter {
 
             // Verificar si el usuario tiene uno de los roles permitidos
             if (roles.contains("ADMIN") || roles.contains("TEACHER") || roles.contains("STUDENT")) {
+
                 // Crear una instancia de UsernamePasswordAuthenticationToken y establecerla en el contexto de seguridad
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }

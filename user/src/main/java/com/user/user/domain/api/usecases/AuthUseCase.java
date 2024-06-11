@@ -1,5 +1,5 @@
 package com.user.user.domain.api.usecases;
-
+import com.user.user.adapters.driven.jpa.mysql.exception.PasswordMismatchException;
 import com.user.user.adapters.driving.http.dto.request.LoginDTO;
 import com.user.user.configuration.Constants;
 import com.user.user.domain.api.IAuthServicePort;
@@ -7,13 +7,16 @@ import com.user.user.domain.api.IUserServicePort;
 import com.user.user.domain.model.User;
 import com.user.user.domain.spi.IUserPersistencePort;
 import com.user.user.configuration.security.jwt.JwtTokenProvider;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import java.util.List;
+
 
 public class AuthUseCase implements IAuthServicePort {
     private final IUserServicePort userServicePort;
     private final JwtTokenProvider jwtTokenProvider;
     private final IUserPersistencePort userPersistencePort;
 
-    //NO USAR DEPENDENCIAS DE SPRING AQUI
 
     public AuthUseCase(IUserServicePort userServicePort, JwtTokenProvider jwtTokenProvider, IUserPersistencePort userPersistencePort) {
         this.userServicePort = userServicePort;
@@ -21,39 +24,23 @@ public class AuthUseCase implements IAuthServicePort {
         this.userPersistencePort = userPersistencePort;
     }
 
-    @Override
-
-    public String registerAdmin(User user) {
-
-        return saveUser(user , Constants.ROLE_ADMIN);
-    }
-
-
 
     @Override
     public String login(LoginDTO loginDTO) {
 
+        User user = userServicePort.findUserByEmail(loginDTO.getEmail());
 
-        return jwtTokenProvider.generateToken(userPersistencePort.login(loginDTO.getEmail(), loginDTO.getPassword()));
-    }
+        if(!userPersistencePort.matchesPassword(loginDTO.getPassword(), user.getPassword())){
+            throw new PasswordMismatchException(Constants.PASSWORD_MISMATCH_EXCEPTION);
+        }
 
-    @Override
-    public String registerTeacher(User user) {
-        return saveUser(user, Constants.ROLE_TEACHER );
-    }
-
-    @Override
-    public String registerStudent(User user) {
-        return saveUser(user, Constants.ROLE_STUDENT );
-    }
+        List<SimpleGrantedAuthority> authorities = user.getRole().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName()))
+                .toList();
 
 
-    private String saveUser(User user, Long roleid){
-        String password = user.getPassword();
-        //Usar metodo para encriptar contraseña
-        user.setPassword(userPersistencePort.encryptPassword(password));
-        userServicePort.saveUser(user, roleid);
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
 
-        return Constants.USER_SAVED_MESSAGE;
+        return jwtTokenProvider.generateToken(userDetails);
     }
 }

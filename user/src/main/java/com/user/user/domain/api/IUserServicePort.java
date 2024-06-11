@@ -1,12 +1,17 @@
 package com.user.user.domain.api;
 
 import com.user.user.domain.model.User;
-import java.util.List;
 
 public interface IUserServicePort {
 
     void saveUser(User user, Long roleId);
 
-    List<User> getAllUsers();
     User findUserByEmail(String email);
+
+    String registerTeacher(User user);
+
+    String registerStudent(User user);
+
+    String registerAdmin(User user);
+
 }

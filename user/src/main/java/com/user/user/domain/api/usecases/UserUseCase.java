@@ -7,7 +7,6 @@ import com.user.user.configuration.Constants;
 import com.user.user.domain.api.IUserServicePort;
 import com.user.user.domain.model.User;
 import com.user.user.domain.spi.IUserPersistencePort;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -28,12 +27,27 @@ public class UserUseCase implements IUserServicePort {
     }
 
     @Override
-    public List<User> getAllUsers() {
-        return userPersistencePort.getAllUsers();
-    }
-    @Override
     public User findUserByEmail(String email) {
         return userPersistencePort.findByEmail(email).orElseThrow(() -> new UserNotExistException(email));
+    }
+    @Override
+    public String registerAdmin(User user) {
+        saveUser(user, Constants.ROLE_ADMIN);
+
+        return Constants.ADMIN_CREATED;
+    }
+
+    @Override
+    public String registerTeacher(User user) {
+        saveUser(user, Constants.ROLE_TEACHER);
+
+        return Constants.TEACHER_CREATED;
+    }
+
+    @Override
+    public String registerStudent(User user) {
+        saveUser(user, Constants.ROLE_STUDENT);
+        return Constants.STUDENT_CREATED;
     }
 
     private void validateData(User user){
@@ -43,12 +57,10 @@ public class UserUseCase implements IUserServicePort {
         if (userPersistencePort.findByDni(user.getDni()).isPresent()) {
             throw new UserAlreadyExists(user.getDni());
         }
-        // Expresión regular para validar el número de teléfono
+
         Pattern pattern = Pattern.compile(Constants.PHONE_NUMBER_REGEX);
         Matcher matcher = pattern.matcher(user.getPhoneNumber());
 
-
-        // Validar el número de teléfono
         if (!matcher.matches()) {
             throw new PhoneNumberNotValidException();
         }

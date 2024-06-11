@@ -38,7 +38,8 @@ public class CustomUserDetails implements UserDetails {
         List<GrantedAuthority> authorities = roles
                 .stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
-                .collect(Collectors.toList());
+                .map(GrantedAuthority.class::cast)
+                .toList();
 
         return new CustomUserDetails(user.getId(), user.getName(), user.getEmail(), user.getPassword(), authorities);
 

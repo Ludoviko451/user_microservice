@@ -34,13 +34,6 @@ public class UserControllerAdvisor {
     }
 
 
-
-    @ExceptionHandler(UserDontHaveRolesException.class)
-    public ResponseEntity<ExceptionResponse> handleUserDontHaveRolesException(UserDontHaveRolesException e) {
-        ExceptionResponse response = new ExceptionResponse(String.format(Constants.USER_DONT_HAVE_ROLES, e.getMessage()), HttpStatus.BAD_REQUEST.toString(), LocalDateTime.now());
-        return ResponseEntity.badRequest().body(response);
-    }
-
     @ExceptionHandler(UserAlreadyExists.class)
     public ResponseEntity<ExceptionResponse> handleUserAlreadyExists(UserAlreadyExists e) {
         ExceptionResponse response = new ExceptionResponse(String.format(Constants.USER_ALREADY_EXISTS, e.getMessage()), HttpStatus.BAD_REQUEST.toString(), LocalDateTime.now());

@@ -14,14 +14,12 @@ import lombok.Setter;
 public class UserRequest {
 
     @NotBlank(message = "El nombre es requerido")
-    @Size(min = 2, message = "El nombre debe tener al menos 2 caracteres")
     private final String name;
 
     @NotBlank(message = "La clave es requerida")
     private String password;
 
     @NotBlank(message = "El apellido es requerido")
-    @Size(min = 2, message = "El apellido debe tener al menos 2 caracteres")
     private final String lastName;
 
     @Pattern(regexp = "\\d+", message = "El documento de identidad debe ser númerico")
