@@ -21,12 +21,6 @@ public class UserRestController {
     private final IUserServicePort userServicePort;
     private final IUserRequestMapper userRequestMapper;
 
-
-    @GetMapping("/userByEmail")
-    public ResponseEntity<UserResponse> getUserByMail(@RequestParam("email") String email) {
-
-        return ResponseEntity.ok(userResponseMapper.toResponse(userServicePort.findUserByEmail(email)));
-    }
     @PostMapping("/registerAdmin")
     public ResponseEntity<String> registerAdmin(@RequestBody @Valid UserRequest userRequest) {
 
