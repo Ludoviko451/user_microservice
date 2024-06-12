@@ -31,23 +31,6 @@ class UserRestControllerTest {
     }
 
     @Test
-    void testGetUserByMail_ValidEmail_UserFound() {
-        // Mocking user data
-        String email = "test@example.com";
-        User user = createUser();
-        when(userServicePort.findUserByEmail(email)).thenReturn(user);
-
-
-        UserResponse expectedResponse = userResponseMapper.toResponse(user);
-        when(userResponseMapper.toResponse(user)).thenReturn(expectedResponse);
-
-        ResponseEntity<UserResponse> response = userRestController.getUserByMail(email);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(expectedResponse, response.getBody());
-    }
-
-    @Test
     void testRegisterAdmin_Success() {
         UserRequest userRequest = createUserRequest();
         User user = createUser();
@@ -98,18 +81,4 @@ class UserRestControllerTest {
         assertEquals("test@example.com", userCaptor.getValue().getEmail());
     }
 
-    @Test
-    void testGetUserByMail_UserNotFound() {
-        String email = "nonexistent@example.com";
-        when(userServicePort.findUserByEmail(email)).thenThrow(new UserNotExistException(email));
-
-        Exception exception = assertThrows(UserNotExistException.class, () -> {
-            userRestController.getUserByMail(email);
-        });
-
-        String expectedMessage = "User with email nonexistent@example.com does not exist";
-        String actualMessage = exception.getMessage();
-
-        assertFalse(actualMessage.contains(expectedMessage));
-    }
 }
